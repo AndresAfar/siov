@@ -6,7 +6,7 @@ import CardMovie from '@/components/ui/card-movie';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'home',
+        title: 'Inicio',
         href: '/home',
     },
 ];

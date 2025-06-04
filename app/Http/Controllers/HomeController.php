@@ -5,43 +5,46 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Movie;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
-        // $movies = Movie::latest()->paginate(20);
-
-        // Películas agregadas recientemente (últimas 2 semanas)
-        $recentMovies = Movie::where('is_published', true)
-            ->where('created_at', '>=', now()->subWeeks(2))
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
-
         // Películas destacadas
-        $featuredMovies = Movie::where('is_published', true)
-            ->where('is_featured', true)
+        $featuredMovies = Movie::published()
+            ->featured()
+            ->with(['genres', 'actors'])
             ->orderBy('created_at', 'desc')
-            ->take(6)
+            ->limit(4)
             ->get();
 
-        // Películas populares (puedes cambiar la lógica según tus necesidades)
-        $popularMovies = Movie::where('is_published', true)
+        // Películas agregadas recientemente (últimos 30 días)
+        $recentMovies = Movie::published()
+            ->recent(30)
+            ->with(['genres', 'actors'])
             ->orderBy('created_at', 'desc')
-            ->take(12)
+            ->limit(10)
             ->get();
 
-        // Todas las películas para diferentes secciones
-        $allMovies = Movie::where('is_published', true)
+        // Películas populares (puedes cambiar esta lógica según tus necesidades)
+        // Por ahora, tomamos las más recientes como "populares"
+        $popularMovies = Movie::published()
+            ->with(['genres', 'actors'])
             ->orderBy('created_at', 'desc')
-            ->take(20)
+            ->limit(12)
+            ->get();
+
+        // Todas las películas para la sección general
+        $allMovies = Movie::published()
+            ->with(['genres', 'actors'])
+            ->orderBy('title', 'asc')
+            ->limit(18)
             ->get();
 
         return Inertia::render('home', [
-            // 'movies' => $movies,
-            'recentMovies' => $recentMovies,
             'featuredMovies' => $featuredMovies,
+            'recentMovies' => $recentMovies,
             'popularMovies' => $popularMovies,
             'allMovies' => $allMovies,
         ]);

@@ -73,7 +73,7 @@ const StreamingLayout = ({
                 <div className="container mx-auto px-4">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                         <div>
-                            <h3 className="text-white font-bold mb-4">StreamFlix</h3>
+                            <h3 className="text-white font-bold mb-4">Siov</h3>
                             <p className="text-gray-400 text-sm">
                                 Tu plataforma de streaming favorita
                             </p>
@@ -107,7 +107,7 @@ const StreamingLayout = ({
                         </div>
                     </div>
                     <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-                        <p>© 2024 StreamFlix. Todos los derechos reservados.</p>
+                        <p>© 2025 Siov. Todos los derechos reservados.</p>
                         <p className="mt-2">
                             Desarrollado con ❤️ para los amantes del entretenimiento
                         </p>

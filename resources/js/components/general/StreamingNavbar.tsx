@@ -46,11 +46,15 @@ const StreamingNavbar = () => {
           {/* Logo */}
           <div className="flex items-center space-x-8">
             <div className="flex-shrink-0">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Film className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold text-white">Siov</span>
+              <div className="flex items-center space-x-3">
+                {/* <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white shadow-md">
+                  <img
+                    src="/logo-app_v3.png"
+                    alt="Logo Siov"
+                    className="w-10 h-10 object-contain"
+                  />
+                </div> */}
+                <span className="text-3xl font-semibold text-gray-200">Siov</span>
               </div>
             </div>
 
