@@ -128,4 +128,16 @@ class Movie extends Model
             default => 'bg-gray-500'
         };
     }
+
+    public function favoriteByUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_favorite_movies', 'movie_id', 'user_id')
+                    ->withTimestamps();
+    }
+
+    public function watchedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_watch_history', 'movie_id', 'user_id')
+                    ->withTimestamps();
+    }
 }

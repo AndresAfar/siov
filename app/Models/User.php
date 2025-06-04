@@ -65,4 +65,23 @@ class User extends Authenticatable
         return $this->hasMany(UserLogin::class);
     }
 
+    /**
+     * Relación muchos a muchos con películas favoritas
+     */
+    public function favoriteMovies()
+    {
+        return $this->belongsToMany(Movie::class, 'user_favorite_movies', 'user_id', 'movie_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Relación muchos a muchos con historial de visualización
+     */
+    public function watchHistory()
+    {
+        return $this->belongsToMany(Movie::class, 'user_watch_history', 'user_id', 'movie_id')
+                    ->withTimestamps()
+                    ->orderBy('user_watch_history.updated_at', 'desc');
+    }
+
 }

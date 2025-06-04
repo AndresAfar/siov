@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Movie;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Http\JsonResponse;
 
 class MovieController extends Controller
 {
@@ -27,6 +28,12 @@ class MovieController extends Controller
             ->where('is_published', true)
             ->with(['genres', 'actors'])
             ->firstOrFail();
+
+        // Verificar si la película está en favoritos del usuario autenticado
+        $isFavorite = false;
+        if (auth()->check()) {
+            $isFavorite = auth()->user()->favoriteMovies()->where('movie_id', $movie->id)->exists();
+        }
 
         // Obtener películas relacionadas basadas en géneros
         $relatedMovies = Movie::where('is_published', true)
@@ -51,7 +58,8 @@ class MovieController extends Controller
 
         return Inertia::render('movies/MoviePreview', [
             'movie' => $movie,
-            'relatedMovies' => $relatedMovies
+            'relatedMovies' => $relatedMovies,
+            'isFavorite' => $isFavorite
         ]);
     }
 
@@ -105,6 +113,67 @@ class MovieController extends Controller
         return Inertia::render('Movies/Genre', [
             'movies' => $movies,
             'genre' => $genre
+        ]);
+    }
+
+    public function toggleFavorite(Movie $movie): JsonResponse
+    {
+        $user = auth()->user();
+        
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no autenticado'], 401);
+        }
+
+        // Verificar si ya está en favoritos
+        $favorite = $user->favoriteMovies()->where('movie_id', $movie->id)->first();
+        
+        if ($favorite) {
+            // Eliminar de favoritos
+            $user->favoriteMovies()->detach($movie->id);
+            return response()->json([
+                'success' => true,
+                'is_favorite' => false,
+                'message' => 'Película eliminada de favoritos'
+            ]);
+        } else {
+            // Agregar a favoritos
+            $user->favoriteMovies()->attach($movie->id, [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+            return response()->json([
+                'success' => true,
+                'is_favorite' => true,
+                'message' => 'Película agregada a favoritos'
+            ]);
+        }
+    }
+
+    public function addToHistory(Movie $movie): JsonResponse
+    {
+        $user = auth()->user();
+        
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no autenticado'], 401);
+        }
+
+        // Verificar si ya existe en el historial
+        $historyEntry = $user->watchHistory()->where('movie_id', $movie->id)->first();
+        
+        if ($historyEntry) {
+            // Actualizar la fecha de última visualización
+            $historyEntry->pivot->update(['updated_at' => now()]);
+        } else {
+            // Agregar nueva entrada al historial
+            $user->watchHistory()->attach($movie->id, [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Película agregada al historial'
         ]);
     }
 }

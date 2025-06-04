@@ -29,9 +29,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Películas por género
         Route::get('/genre/{genre:slug}', [MovieController::class, 'byGenre'])->name('genre');
-        
+
         Route::get('/{movie:slug}', [MovieController::class, 'show'])->name('show');
+        // Favoritos
+        Route::post('/{movie:id}/favorite', [MovieController::class, 'toggleFavorite'])->name('movies.favorite');
+        
+        // Historial de visualización
+        Route::post('/{movie:id}/watch-history', [MovieController::class, 'addToHistory'])->name('movies.history');
     });
+
 });
 
 // Ruta para ver/reproducir película

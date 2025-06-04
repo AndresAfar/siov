@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Play, Clock, Calendar, Star, Share2, Heart, Download, ArrowLeft } from 'lucide-react';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import GeneralLayout from '@/layouts/general-layout';
 import { type BreadcrumbItem, type Movie } from '@/types';
 
@@ -29,12 +29,14 @@ interface ExtendedMovie extends Movie {
 interface MoviePreviewProps {
   movie: ExtendedMovie;
   relatedMovies?: Movie[];
+  isFavorite: boolean;
 }
 
 const MoviePreview = () => {
-  const { movie, relatedMovies } = usePage<MoviePreviewProps>().props;
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { movie, relatedMovies, isFavorite: initialIsFavorite } = usePage<MoviePreviewProps>().props;
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [showTrailer, setShowTrailer] = useState(false);
+  const [isProcessingFavorite, setIsProcessingFavorite] = useState(false);
 
   const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -90,9 +92,37 @@ const MoviePreview = () => {
     }
   };
 
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    // Aquí puedes agregar la lógica para guardar en favoritos
+  const toggleFavorite = async () => {
+    if (isProcessingFavorite) return;
+    
+    setIsProcessingFavorite(true);
+    
+    try {
+      const response = await fetch(`/movies/${movie.id}/favorite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsFavorite(data.is_favorite);
+        
+        // Mostrar notificación (opcional)
+        if (data.message) {
+          // Puedes agregar aquí tu sistema de notificaciones
+          console.log(data.message);
+        }
+      } else {
+        console.error('Error al cambiar favorito');
+      }
+    } catch (error) {
+      console.error('Error en la petición:', error);
+    } finally {
+      setIsProcessingFavorite(false);
+    }
   };
 
   return (
@@ -219,14 +249,15 @@ const MoviePreview = () => {
                   
                   <button 
                     onClick={toggleFavorite}
+                    disabled={isProcessingFavorite}
                     className={`px-6 py-4 rounded-lg font-semibold text-lg flex items-center gap-3 transition-all duration-200 border ${
                       isFavorite 
-                        ? 'bg-red-600 text-white border-red-600' 
+                        ? 'bg-red-600 text-white border-red-600 hover:bg-red-700' 
                         : 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-700'
-                    }`}
+                    } ${isProcessingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                    {isFavorite ? 'En Favoritos' : 'Favoritos'}
+                    <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''} ${isProcessingFavorite ? 'animate-pulse' : ''}`} />
+                    {isProcessingFavorite ? 'Procesando...' : (isFavorite ? 'En Favoritos' : 'Favoritos')}
                   </button>
                   
                   <button className="bg-transparent text-gray-300 px-6 py-4 rounded-lg font-semibold text-lg flex items-center gap-3 transition-all duration-200 border border-gray-600 hover:bg-gray-700">

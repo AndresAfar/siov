@@ -64,7 +64,7 @@ const CardMovie: React.FC<CardMovieProps> = ({
   if (variant === 'horizontal') {
     return (
       <Link href={`/movies/${movie.slug}`}>
-        <div className="group flex space-x-4 bg-gray-800/50 rounded-lg p-4 hover:bg-gray-700/50 transition-all duration-300 cursor-pointer border border-gray-700/50 hover:border-gray-600">
+        <div className="group flex space-x-4 bg-gray-800/50 rounded-lg p-4 mb-2 hover:bg-gray-700/50 transition-all duration-300 cursor-pointer border border-gray-700/50 hover:border-gray-600">
           {/* Imagen */}
           <div className="relative w-20 h-28 flex-shrink-0">
             <div className="w-full h-full bg-gray-600 rounded-lg overflow-hidden">
